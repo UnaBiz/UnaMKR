@@ -46,12 +46,12 @@ UnaMKR was designed by [UnaBiz](https://www.unabiz.com).
 Several documents are available to have a better understanding of UnaMKR capabilities.
 
 * For absolute beginners, go check our tutorial series
-  * UnaMKR Arduino Tutorial (soon!)
   * [UnaMKR Modem Tutorial](01-Tutorial-Modem)
 * [UnaMKR Hardware](10-Hardware)
 * [UnaMKR Operating Modes](20-Modes)
 
 Additional documents are soon to be released:
+* UnaMKR Arduino Tutorial
 * UnaMKR Arduino mode
 * UnaMKR Modem mode
 * UnaMKR Embed mode
