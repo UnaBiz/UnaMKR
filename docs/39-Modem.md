@@ -1,0 +1,486 @@
+# UnaMKR Modem Mode
+
+This document describes how to use UnaMKR in Modem mode.
+
+The following tutorials will guide you through how to setup the software development environment and everything you need to start with your IoT projects.
+
+# Prerequisites
+
+*   UnaMKR set to Modem mode (check [UnaMKR Operating Modes](20-Modes?id=switching-mode))
+*   A Micro USB cable
+
+# Connection settings
+
+| Setting | Value
+|---|:---:
+| Baud Rate | 115200
+| Data Bits | 8
+| Parity | None
+| Stop Bits | 1
+| Flow Control | None
+| Local Echo<br/>(recommanded) | Enabled
+
+# Connection testing
+
+* Sending `AT?` should produce an `OK` reply
+
+
+# AT commands reference table
+
+* Commands must be terminated with `\r\n` character sequence
+
+
+<table>
+  <tr>
+   <td>
+   </td>
+   <td>
+Name
+   </td>
+   <td>Description
+   </td>
+   <td>Syntax
+   </td>
+   <td>Response
+   </td>
+   <td>Examples
+   </td>
+  </tr>
+  <tr>
+   <td>1
+   </td>
+   <td>Ping device
+   </td>
+   <td>
+   </td>
+   <td>AT?
+   </td>
+   <td>OK
+   </td>
+   <td>
+   </td>
+  </tr>
+  <tr>
+   <td>2
+   </td>
+   <td>Echo Enable/Disable
+   </td>
+   <td>This command is utilized to echo TX command which received from the host. The default in Arduino mode is off
+   </td>
+   <td>AT$ECHO=[echo flag]
+   </td>
+   <td>OK
+   </td>
+   <td>Enable echo: AT$ECHO=1
+<p>
+Response: OK
+<p>
+Disable echo: AT$ECHO=0
+<p>
+Response: OK
+   </td>
+  </tr>
+  <tr>
+   <td>3
+   </td>
+   <td>Get firmware version
+   </td>
+   <td>Get AT-mode firmware version
+   </td>
+   <td>AT$FW?
+   </td>
+   <td>FW:V0001
+   </td>
+   <td>
+   </td>
+  </tr>
+  <tr>
+   <td>4
+   </td>
+   <td>Get Device ID
+   </td>
+   <td>Get Sigfox device ID
+   </td>
+   <td>AT$ID?
+   </td>
+   <td>[Sigfox device ID]
+   </td>
+   <td>
+   </td>
+  </tr>
+  <tr>
+   <td>5
+   </td>
+   <td>Get Device PAC
+   </td>
+   <td>Get Sigfox device PAC code
+   </td>
+   <td>AT$PAC?
+   </td>
+   <td>[Sigfox PAC Code]
+   </td>
+   <td>
+   </td>
+  </tr>
+  <tr>
+   <td>6
+   </td>
+   <td>Send Frame
+   </td>
+   <td>Sending Sigfox message
+   </td>
+   <td>AT$SF=[data],[downlink flag]
+   </td>
+   <td>Response of uplink: OK
+<p>
+Response of downlink: [downlink data]
+   </td>
+   <td>AT$SF=00112233,0
+<p>
+Response: OK
+<p>
+AT$SF=00112233,1
+<p>
+Response: 010203
+   </td>
+  </tr>
+  <tr>
+   <td>7
+   </td>
+   <td>Send Bit
+   </td>
+   <td>
+   </td>
+   <td>AT$SB=[bit value],[downlink flag]
+   </td>
+   <td>Response of uplink: OK
+<p>
+Response of downlink: [downlink data]
+   </td>
+   <td>AT$SB=1,0
+<p>
+Response: OK
+   </td>
+  </tr>
+  <tr>
+   <td>8
+   </td>
+   <td>Enable/Disable Public Key (Emulator)
+   </td>
+   <td>
+   </td>
+   <td>AT$PBKEY=[public key enable/disable]
+   </td>
+   <td>OK
+   </td>
+   <td>AT$PBKEY=0
+<p>
+Response: OK
+   </td>
+  </tr>
+  <tr>
+   <td>9
+   </td>
+   <td>Get module zone
+   </td>
+   <td>
+   </td>
+   <td>AT$ZONE?
+   </td>
+   <td>[zone]
+   </td>
+   <td>AT$ZONE?
+<p>
+Response: 4
+   </td>
+  </tr>
+  <tr>
+   <td>10
+   </td>
+   <td>Set module zone
+   </td>
+   <td>
+   </td>
+   <td>AT$SETZONE=[zone]
+   </td>
+   <td>OK
+   </td>
+   <td>AT$SETZONE=1
+<p>
+Response: OK
+   </td>
+  </tr>
+  <tr>
+   <td>11
+   </td>
+   <td>Get Monarch zone
+   </td>
+   <td>
+   </td>
+   <td>AT$MONARCH=[monarch scan time in seconds]
+   </td>
+   <td>OK
+   </td>
+   <td>AT$MONARCH=310
+<p>
+Response: OK
+   </td>
+  </tr>
+  <tr>
+   <td>12
+   </td>
+   <td>Reset module
+   </td>
+   <td>
+   </td>
+   <td>AT$RESET
+   </td>
+   <td>OK
+   </td>
+   <td>
+   </td>
+  </tr>
+  <tr>
+   <td>13
+   </td>
+   <td>Sleep module
+   </td>
+   <td>
+   </td>
+   <td>AT$SLEEP
+   </td>
+   <td>OK
+   </td>
+   <td>
+   </td>
+  </tr>
+  <tr>
+   <td>14
+   </td>
+   <td>BT4.0 Name
+   </td>
+   <td>
+   </td>
+   <td>AT$NAME={name}
+   </td>
+   <td>OK
+   </td>
+   <td>
+   </td>
+  </tr>
+  <tr>
+   <td>15
+   </td>
+   <td>BT4.0 Config Bluetooth Device Address
+   </td>
+   <td>Specifies the public BD address.
+   </td>
+   <td>AT$BTADDR={Address}
+   </td>
+   <td>OK
+   </td>
+   <td>
+   </td>
+  </tr>
+  <tr>
+   <td>16
+   </td>
+   <td>BT4.0 Get Bluetooth Device Address
+   </td>
+   <td>
+   </td>
+   <td>AT$BTADDR?
+   </td>
+   <td>{Bluetooth device address}
+   </td>
+   <td>AT$BTADDR?
+<p>
+Response: F8A2D6000001
+   </td>
+  </tr>
+  <tr>
+   <td>17
+   </td>
+   <td>BT4.0 Reset
+   </td>
+   <td>
+   </td>
+   <td>AT$BTRST
+   </td>
+   <td>OK
+   </td>
+   <td>
+   </td>
+  </tr>
+  <tr>
+   <td>18
+   </td>
+   <td>BT4.0 TX
+   </td>
+   <td>Note: this command is only valid in GAP peripheral role.
+   </td>
+   <td>AT$BTTX={datasize},{data}
+   </td>
+   <td>OK
+   </td>
+   <td>
+   </td>
+  </tr>
+  <tr>
+   <td>19
+   </td>
+   <td>BT4.0 RX
+   </td>
+   <td>Note: this command is only valid in GAP peripheral role
+   </td>
+   <td>AT$BTRX={datasize}
+   </td>
+   <td>{data}
+   </td>
+   <td>
+   </td>
+  </tr>
+  <tr>
+   <td>20
+   </td>
+   <td>BT4.0 Set Advertisement Packet
+   </td>
+   <td>Parameter description:  \
+[datasize] Total length of the raw data
+<p>
+[advertising flag] flag of advertisement, 1~255
+<p>
+[data] raw advertising data, (0-9, A-F)
+   </td>
+   <td>AT$BTSETADV={datasize},{advertising flag},{data}
+   </td>
+   <td>OK
+   </td>
+   <td>AT$BTSETADV=10,255,393A383235
+<p>
+Response:
+<p>
+AT$BTSETADV=52,255,4C000215FB0B57A2822844CD913A94A122BA120600010002D100
+   </td>
+  </tr>
+  <tr>
+   <td>21
+   </td>
+   <td>BT4.0 Start Advertisement
+   </td>
+   <td>
+   </td>
+   <td>AT$BTADV={connectable},{address type}
+   </td>
+   <td> OK
+   </td>
+   <td>AT$BTADV=0,1
+<p>
+Response: OK
+   </td>
+  </tr>
+  <tr>
+   <td>22
+   </td>
+   <td>BT4.0 Start Scanning (discovery)
+   </td>
+   <td>Parameter description: \
+[scan time]	unit of scanning time is 1 ms.
+<p>
+ \
+[filter type] 0 = no filter applied  \
+1 = RSSI > -70 db (-70 ~ -127 will be filtered) \
+2 = RSSI > -60 db  \
+3 = RSSI > -50 db \
+4 = RSSI > -40 db \
+5 = RSSI > -30 db \
+	others = reserved
+<p>
+[Adv. filter type]
+<p>
+0 = no filter applied \
+1 = iBeacon \
+2 = Indoor positioning \
+others = reserved.
+   </td>
+   <td>AT$BTSCAN={scan time},{RSSI filter type},{Adv. filter type}
+   </td>
+   <td> OK
+   </td>
+   <td>AT$BTSCAN=3000,0,0
+<p>
+Response: OK
+   </td>
+  </tr>
+  <tr>
+   <td>23
+   </td>
+   <td>BT4.0 Get Scanned Result(s)
+   </td>
+   <td>[Connectable]
+<p>
+0 = non-connectable \
+1 = connectable \
+ \
+[Addr Type]
+<p>
+0 = public device address \
+1 = random device address \
+2 = public Identity address \
+3 = random (static) identity address \
+ \
+[RSSI]
+<p>
+-127 = not available \
+-126 ~ 20
+   </td>
+   <td>AT$BTRESULT?
+   </td>
+   <td>{Connectable #1},{Addr.Type #1},{Address #1},{RSSI #1},{Adv.Len #1},{Adv.Data #1}; \
+{Connectable #2},{Addr.Type #2},{Address #2},{RSSI #2},{Adv.Len #2},{Adv.Data #2}; \
+፧ \
+{Connectable #n},{Addr.Type #n},{Address #n},{RSSI #n},{Adv.Len #n},{Adv. Data #n}
+   </td>
+   <td>AT$BTRESULT?
+<p>
+Response:
+<p>
+0,0,E18002000001,-47,28,02011A0303211816196E52463578; \
+0,0,E18002000002,-62,32,02011A03030218080946696E64204D65
+   </td>
+  </tr>
+  <tr>
+   <td>24
+   </td>
+   <td>BT4.0 Create Connection
+   </td>
+   <td>Note: This command is only valid in GAP master role.
+   </td>
+   <td>AT$BTCONN={Target device address}
+   </td>
+   <td>OK
+   </td>
+   <td>AT$BTCONN=E18002000002
+<p>
+Response: OK
+   </td>
+  </tr>
+  <tr>
+   <td>25
+   </td>
+   <td>BT4.0 Disconnect Current Connection
+   </td>
+   <td>Disconnect current connection.
+   </td>
+   <td>AT$BTDISCONN
+   </td>
+   <td>OK
+   </td>
+   <td>
+   </td>
+  </tr>
+</table>
+
+
+
+<!-- Docs to Markdown version 1.0β17 -->
