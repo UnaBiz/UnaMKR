@@ -217,9 +217,10 @@ This method is utilized to change status of UnaMKR from deep-sleep to ready.
 
 This method is utilized to get firmware version of UnaMKR.
 
-`    int   getVersion(void);`
+`    int   getVersion(void)`
 
-```            char response[16];
+```
+char response[16];
 int  length;
 // Get firmware version of UnaMKR
 my_mkr.getVersion();
@@ -232,9 +233,10 @@ my_mkr.getData(response, &length, 1000);
 
 This method is utilized to get SigFox device ID of UnaMKR.
 
-`    int   getId(void);`
+`    int   getId(void)`
 
-```            char response[32];
+```
+char response[32];
 int  length;
 // Get SigFox device ID
 my_mkr.getId();
@@ -247,7 +249,8 @@ This method is utilized to get SigFox device PAC of UnaMKR.
 
 `    int   getPac(void)`
 
-```            char response[32];
+```
+char response[32];
 int  length;
 // Get SigFox device PAC
 my_mkr.getPac();
@@ -260,7 +263,8 @@ This method is utilized to get current SigFox operation zone (RCZ) of UnaMKR.
 
 `    int   getZone(void)`
 
-```            char response[32]
+```
+char response[32]
 int  length;
 // Get current SigFox RCZ
 my_mkr.getZone();
@@ -275,7 +279,8 @@ This method is utilized to configure specific SigFox operation zone (RCZ) of Una
 * `rcz`: Sigfox Radio Configuration to set
 
 
-```            // Set SigFox RCZ to ZONE-1
+```
+// Set SigFox RCZ to ZONE-1
 my_mkr.setZone(1);
 my_mkr.getData_CheckOk(1000);
 ```
@@ -287,7 +292,8 @@ This method is utilized to change status of UnaMKR to monarch scanning with spec
 `    int   monarch(int search_time)`
 
 
-```            // Start monarch scanning (time = 310 seconds)
+```
+// Start monarch scanning (time = 310 seconds)
 my_mkr.monarch(310);
 my_mkr.getData_CheckOk(310*1000);
 ```
@@ -298,7 +304,8 @@ This method is utilized to enable/disable public key of UnaMKR. The default valu
 
 `    int   publicKey(bool enable)`
 
-```            // Enable public key due to Emulator
+```         
+   // Enable public key due to Emulator
 my_mkr.publicKey(true);
 my_mkr.getData_CheckOk(1000);
 ```
@@ -313,7 +320,8 @@ These methods are utilized to send Sigfox uplink message.
 `int   uplink(UnaMkrMessage *pMsg)`
 `int   uplink(UnaShieldMessage *pMsg)`
 
-```            // Uplink ASCII string "UnaMKR"
+```
+// Uplink ASCII string "UnaMKR"
 my_mkr.uplink(String("UnaMKR"));
 my_mkr.getData_CheckOk(1000);
             // Uplink numeric ASCII HEX data (0-9, A-F, a-f)
@@ -410,7 +418,8 @@ This method is utilized to get public BLE device address (BD address).
 
 `    int   getBtDeviceAddress(void)`
 
-```            char response[32];
+```            
+char response[32];
 int  length;
 // Get BD address
 my_mkr.getBtDeviceAddress();
@@ -423,7 +432,8 @@ This method is utilized to reset BLE state and GAP role to ready state.
 
 `    int   btReset(void)`
 
-```            // Reset BLE
+```            
+// Reset BLE
 my_mkr.btReset("MyMKR");
 my_mkr.getData_CheckOk(1000);
 ```
@@ -453,7 +463,8 @@ This method is utilized to change BLE to scan state. There are some filters whic
   * ADV_IBEACON, ignore advertisements except iBeacon .
   * ADV_IPS, ignore advertisements except indoor-positioning.
 
-```            // Start BLE scan. Time: 3000 ms. RSSI filter: RSSI > -50db
+```            
+// Start BLE scan. Time: 3000 ms. RSSI filter: RSSI > -50db
 my_mkr.btScan(3000,
 	RSSI_LARGER_THAN_m50DB,
 	NO_ADV_FILTER);
@@ -466,7 +477,8 @@ This method is utilized to request all scan results.
 
 `    int   btGetScanResult(void)`
 
-```            // Get all BLE scan results
+```            
+// Get all BLE scan results
 UnaScanResult my_result;
 my_mkr.btGetScanResult();
 while (my_mkr.getData_ScanResult(&my_result, 1000))
@@ -481,29 +493,34 @@ This method is utilized to change to GAP peripheral role and BLE advertising sta
 
 `    int   btAdvertising(UnaAdvertiser* adv)`
 
-```        <UnaAdvertiser>
+```        
+<UnaAdvertiser>
+            // Clear all specific advertisements and configuration.
             void clear(void);
-            Clear all specific advertisements and configuration.
-            bool config(ScanAdvType connectable,
-	ScanAddressType address_type);
-            Configure advertising connectable/non-connectable, public address/random address.
+
+            // Configure advertising connectable/non-connectable, public address/random address.
+            bool config(ScanAdvType connectable, ScanAddressType address_type);
+
+            // Transfer a short name to advertisement format.
             Adv_t  transfer_localName(const char* name);
-            Transfer a short name to advertisement format.
-            Adv_t  transfer_UUID16(const uint16_t *uuid16,
-	int list_number);
-            Transfer an array of UUID-16 list to advertisement format.
-            Adv_t  transfer_raw(AdvType_t type,
-	const byte *data,
-	byte length);
-            Transfer AdvType, raw data to advertisement format.
+
+            // Transfer an array of UUID-16 list to advertisement format.
+            Adv_t  transfer_UUID16(const uint16_t *uuid16, int list_number);
+
+            // Transfer AdvType, raw data to advertisement format.
+            Adv_t  transfer_raw(AdvType_t type, const byte *data,	byte length);
+
+            // Add specific Advertisement to this component.
             bool add(Adv_t advertisement);
-            Add specific Advertisement to this component.
+
+            //Remove specific AdvType in this component.
             bool remove(AdvType_t remove_type);
-            Remove specific AdvType in this component.
-            Please refer example code Ble_Beacon.ino to learn more setup of Advertiser.
+
+            //Please refer example code Ble_Beacon.ino to learn more setup of Advertiser.
 ```
 
-```            // Start a connectable BLE advertising
+```            
+// Start a connectable BLE advertising
 UnaAdvertiser my_adv;
 my_adv.clear();
 my_adv.config(CONNECTABLE, RANDOM_ADDRESS);
@@ -518,7 +535,8 @@ There is no GATT client for UnaMKR currently. This command is reserved for speci
 
 `    int   btConnect(const char *pBdAddress)`
 
-```            // Create connection
+```            
+// Create connection
 my_mkr.btConnect("MyMKR");
 my_mkr.getData_CheckOk(1000);
 ```
@@ -529,7 +547,8 @@ This method is utilized to disconnect with current BLE connection. For periphera
 
 `    int   btDisconnect(void)`
 
-```            // Disconnect BLE
+```            
+// Disconnect BLE
 my_mkr.btDisconnect();
 my_mkr.getData_CheckOk(1000);
 ```
@@ -541,7 +560,8 @@ This command is only valid for peripheral role.
 
 `    int   btWrite(const char *data, int data_len)`
 
-```            // BLE TX
+```            
+// BLE TX
 my_mkr.btWrite("Text from UnMKR");
 my_mkr.getData_CheckOk(1000);
 ```
@@ -554,7 +574,8 @@ This command is only valid for peripheral role.
 `    int   btRead(int read_len)`
 * `read_len`:
 
-```            // BLE RX (maximum 16 bytes)
+```            
+// BLE RX (maximum 16 bytes)
 char response[16];
 int  length;
 // Get data with timeout 1000 ms
