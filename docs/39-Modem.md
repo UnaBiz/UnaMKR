@@ -89,9 +89,9 @@ Response: OK
    </td>
    <td>AT$FW?
    </td>
-   <td>FW:V0001
+   <td>[FW version]
    </td>
-   <td>
+   <td>AT$FW? <p>Response: FW:V0001
    </td>
   </tr>
   <tr>
@@ -345,7 +345,7 @@ Response: F8A2D6000001
    </td>
    <td>BT4.0 Set Advertisement Packet
    </td>
-   <td>Parameter description:  \
+   <td>Parameter description:
 [datasize] Total length of the raw data
 <p>
 [advertising flag] flag of advertisement, 1~255
@@ -384,23 +384,23 @@ Response: OK
    </td>
    <td>BT4.0 Start Scanning (discovery)
    </td>
-   <td>Parameter description: \
+   <td>Parameter description:
 [scan time]	unit of scanning time is 1 ms.
 <p>
- \
-[filter type] 0 = no filter applied  \
-1 = RSSI > -70 db (-70 ~ -127 will be filtered) \
-2 = RSSI > -60 db  \
-3 = RSSI > -50 db \
-4 = RSSI > -40 db \
-5 = RSSI > -30 db \
-	others = reserved
+
+[filter type] 0 = no filter applied
+1 = RSSI > -70 db (-70 ~ -127 will be filtered)
+2 = RSSI > -60 db
+3 = RSSI > -50 db
+4 = RSSI > -40 db
+5 = RSSI > -30 db
+others = reserved
 <p>
 [Adv. filter type]
 <p>
-0 = no filter applied \
-1 = iBeacon \
-2 = Indoor positioning \
+0 = no filter applied
+1 = iBeacon
+2 = Indoor positioning
 others = reserved.
    </td>
    <td>AT$BTSCAN={scan time},{RSSI filter type},{Adv. filter type}
@@ -419,33 +419,33 @@ Response: OK
    </td>
    <td>[Connectable]
 <p>
-0 = non-connectable \
-1 = connectable \
- \
+0 = non-connectable
+1 = connectable
+
 [Addr Type]
 <p>
-0 = public device address \
-1 = random device address \
-2 = public Identity address \
-3 = random (static) identity address \
- \
+0 = public device address
+1 = random device address
+2 = public Identity address
+3 = random (static) identity address
+
 [RSSI]
 <p>
--127 = not available \
--126 ~ 20
+-127 = not available
+-126 ~ +20
    </td>
    <td>AT$BTRESULT?
    </td>
-   <td>{Connectable #1},{Addr.Type #1},{Address #1},{RSSI #1},{Adv.Len #1},{Adv.Data #1}; \
-{Connectable #2},{Addr.Type #2},{Address #2},{RSSI #2},{Adv.Len #2},{Adv.Data #2}; \
-፧ \
+   <td>{Connectable #1},{Addr.Type #1},{Address #1},{RSSI #1},{Adv.Len #1},{Adv.Data #1};
+{Connectable #2},{Addr.Type #2},{Address #2},{RSSI #2},{Adv.Len #2},{Adv.Data #2};
+፧
 {Connectable #n},{Addr.Type #n},{Address #n},{RSSI #n},{Adv.Len #n},{Adv. Data #n}
    </td>
    <td>AT$BTRESULT?
 <p>
 Response:
 <p>
-0,0,E18002000001,-47,28,02011A0303211816196E52463578; \
+0,0,E18002000001,-47,28,02011A0303211816196E52463578;
 0,0,E18002000002,-62,32,02011A03030218080946696E64204D65
    </td>
   </tr>
