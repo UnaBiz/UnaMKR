@@ -1,0 +1,143 @@
+#######################################
+# Syntax Coloring Map
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+UnaMKR				KEYWORD1
+UnaMkrBufferQueue	KEYWORD1
+UnaMkrMessage		KEYWORD1
+UnaShieldMessage	KEYWORD1
+TSL2540				KEYWORD1
+UnaScanResult 		KEYWORD1
+UnaAdvertiser		KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+# UnaMKR
+begin	KEYWORD2
+echo	KEYWORD2
+reset	KEYWORD2
+echo	KEYWORD2
+reset	KEYWORD2
+sleep	KEYWORD2
+wakeup	KEYWORD2
+getVersion	KEYWORD2
+getId	KEYWORD2
+getPac	KEYWORD2
+getZone	KEYWORD2
+setZone	KEYWORD2
+mornarch	KEYWORD2
+publicKey	KEYWORD2
+uplink	KEYWORD2
+downlink	KEYWORD2
+setBtName			KEYWORD2
+setBtDeviceAddress	KEYWORD2
+getBtDeviceAddress	KEYWORD2
+btReset				KEYWORD2
+btScan				KEYWORD2
+getScanResult		KEYWORD2
+btAdvertising		KEYWORD2
+btConnect			KEYWORD2
+btDisconnect		KEYWORD2
+btWrite				KEYWORD2
+btRead				KEYWORD2
+checkData_Available	KEYWORD2
+getData_try			KEYWORD2
+getData				KEYWORD2
+getData_CheckOk		KEYWORD2
+getData_ScanResult	KEYWORD2
+logEnable			KEYWORD2
+
+# UnaMkrBufferQueue
+
+# UnaMkrMessage
+clear				KEYWORD2
+setScale			KEYWORD2
+getHexData			KEYWORD2
+addField_Temperature	KEYWORD2
+addField_Humidity	KEYWORD2
+addField_Pressure	KEYWORD2
+addField_IndoorAirQuality	KEYWORD2
+addField_Acceletometer	KEYWORD2
+addField_Magnetometer	KEYWORD2
+addField_LightSensor	KEYWORD2
+addField_InfraredSensor	KEYWORD2
+addField_ReedSwitch		KEYWORD2
+addField_RCZone	KEYWORD2
+print_msg		KEYWORD2
+getHexData		KEYWORD2
+getPayloadNum	KEYWORD2
+setTimeout		KEYWORD2
+getTimeout		KEYWORD2
+
+# UnaScanResult
+addField			KEYWORD2
+decodeScanResult	KEYWORD2
+
+# UnaAdvertiser
+transfer_localName	KEYWORD2
+transfer_UUID16		KEYWORD2
+transfer_raw		KEYWORD2
+add 				KEYWORD2
+remove				KEYWORD2
+clear				KEYWORD2
+getConnectionType	KEYWORD2
+getAddressType		KEYWORD2
+
+# TSL2540
+begin		KEYWORD2
+end			KEYWORD2
+readVisible	KEYWORD2
+readIR		KEYWORD2
+configInterrupt		KEYWORD2
+enableInterrupt		KEYWORD2
+disableInterrupt	KEYWORD2
+
+
+######################################
+# Constants (LITERAL1)
+#######################################
+# Command status
+NO_ERROR	LITERAL1
+ERR_SERIAL_CLOSED	LITERAL1
+ERR_INVALID_PARAMETER	LITERAL1
+
+# Pin
+PIN_BUTTON	LITERAL1
+PIN_REED_INT	LITERAL1
+PIN_LIGHT_INT	LITERAL1
+
+# RC
+RCZ_1	LITERAL1
+RCZ_2	LITERAL1
+RCZ_3	LITERAL1
+RCZ_4	LITERAL1
+RCZ_5	LITERAL1
+RCZ_6	LITERAL1
+
+# RSSI filter
+NO_RSSI_FILTER	LITERAL1
+RSSI_LARGER_THAN_m70DB	LITERAL1
+RSSI_LARGER_THAN_m60DB	LITERAL1
+RSSI_LARGER_THAN_m50DB	LITERAL1
+RSSI_LARGER_THAN_m40DB	LITERAL1
+RSSI_LARGER_THAN_m30DB	LITERAL1
+
+# Advertisement filter
+NO_ADV_FILTER	LITERAL1
+ADV_IBEACON  	LITERAL1
+ADV_IPS      	LITERAL1
+
+# Connectable
+NON_CONNECTABLE	LITERAL1
+CONNECTABLE		LITERAL1
+
+# Address type
+PUBLIC_ADDRESS			LITERAL1
+RANDOM_ADDRESS			LITERAL1
+PUBLIC_IDENTITY_ADDRESS	LITERAL1
+RANDOM_IDENTITY_ADDRESS	LITERAL1

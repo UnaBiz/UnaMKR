@@ -1,3 +1,7 @@
-# UnaMKR
+# UnaMKR Library
 
-Documentation is [here](https://unabiz.github.io/UnaMKR/)
+Version: 1.0.0
+
+Check out the documents at
+  * https://unabiz.github.io/UnaMKR/
+
