@@ -32,10 +32,10 @@ TSL2540  tsl;
 Adafruit_ZeroTimer *zt4;
 
 /* Definitions */
-#define  TIMER_PERIODIC         (2400)          // timer trigger uplink, unit: second
+#define  TIMER_PERIODIC         (1200)          // timer trigger uplink, unit: second
 #define  TIMER_SAMPLING         (30)            // timer trigger asynchronous sampling, unit: second
 #define  TIME_WAIT_RESPONSE     (1000)          // timeout for response, unit: milli-second
-#define  TIME_WAIT_UPLINK       (15000)         // // timeout for uplink, unit: milli-second 
+#define  TIME_WAIT_UPLINK       (15000)         // timeout for uplink, unit: milli-second
 
 /* Variables */
 volatile bool button_pressed = false;
@@ -46,11 +46,11 @@ volatile uint32_t timer_count;
 
 /* Interrupt callback */
 void reedInterrupt() {
-  reed_detect = true;
+    reed_detect = true;
 }
 
 void buttonInterrupt() {
-  button_pressed = true;
+    button_pressed = true;
 }
 
 void timerInterrupt() {
@@ -65,17 +65,16 @@ void timerInterrupt() {
 }
 
 void clearInterrupt() {
-  button_pressed = false;
-  reed_detect    = false;
-  timer_detect   = false;
+    button_pressed = false;
+    reed_detect    = false;
+    timer_detect   = false;
 }
 
 /* Timer handler, please do not remove it */
-void TC4_Handler()
-{
-  Adafruit_ZeroTimer::timerHandler(4);
+void TC4_Handler() {
+    Adafruit_ZeroTimer::timerHandler(4);
 }
-  
+
 /* Arduino Setup */
 void setup() {
 
@@ -88,7 +87,7 @@ void setup() {
     my_bme.setGasHeater(320, 150); // 320*C for 150 ms
     my_bme.performReading();
     
-    // LSM303AGR
+    // LSM303AGR Sensor
     Acc = new LSM303AGR_ACC_Sensor(&Wire);
     Mag = new LSM303AGR_MAG_Sensor(&Wire);
     Acc->SetFS(2.0);    // 2g
@@ -99,7 +98,7 @@ void setup() {
     Acc->Enable();
     Mag->Enable();
 
-    // TSL2540
+    // TSL2540 Sensor
     tsl.begin();
 
     // Reed switch
@@ -141,7 +140,7 @@ void setup() {
 void loop() {
 
     static int loop_count = 0;
-    static bool bme680_state = true;
+    static int read_count = 0;
     char response[12];
     char str[128];
     int  resp_len;
@@ -153,7 +152,7 @@ void loop() {
 
     // Asynchronous sampling for BME680
     if (timer_sampling) {
-      bme680_state = my_bme.performReading();
+      my_bme.performReading();
       timer_sampling = false;
     }
     
@@ -196,26 +195,19 @@ void loop() {
     Mag->GetAxes(mag);
 
     // Setup message (payload)
-    UnaMkrMessage msg;
+    UnaMkrMessage msg(true);
     msg.clear();
     msg.setTimeout(TIME_WAIT_UPLINK);
-    
+    msg.addField_RCZone(zone);
+    msg.addField_ReedSwitch(rs);
     msg.addField_Acceletometer(acc);
     msg.addField_Magnetometer(mag);
- 
-    if (bme680_state) {
-      msg.addField_Temperature(tmp);
-      msg.addField_Humidity(hmd);
-      msg.addField_Pressure(prs);
-      msg.addField_IndoorAirQuality(gas);
-    } else {
-      Serial.println(" BME680: Failed to perform reading :(");
-    }
-    
+    msg.addField_Temperature(tmp);
+    msg.addField_Humidity(hmd);
+    msg.addField_Pressure(prs);
+    msg.addField_IndoorAirQuality(gas);
     msg.addField_LightSensor(vsb);
-    msg.addField_InfraredSensor(ir);
-    msg.addField_ReedSwitch(rs);
-    msg.addField_RCZone(zone);
+    msg.addField_InfraredSensor(ir);    
 
     // Print all status of sensors
     Serial.print("  * RC = ");
@@ -255,7 +247,7 @@ void loop() {
     // Print payloads
     Serial.print("\r\n");
     msg.print_msg();
-    
+
     // Uplink with message type of payload
     Serial.println("SigFox uplink... ");
     my_mkr.uplink(&msg);
@@ -283,31 +275,25 @@ void loop() {
 
 Interrupt detected: Button 
 AT$ZONE?
-2
-  * RC = 2
-  * Temperature = 34.49 *C
-  * Humidity = 50.93 %
-  * Pressure = 1002.11 hPa
-  * Air Quality = 4.95 kOhms
-  * Acc (X,Y,Z)[mg] = (  -30, -947,  211)
-  * Mag (X,Y,Z)[mGauss] = (  -37,  457,   60)
-  * Visible: 48
-  * Infrared: 62
+1
+  * RC = 1
+  * Temperature = 25.40 *C
+  * Humidity = 47.72 %
+  * Pressure = 1003.17 hPa
+  * Air Quality = 61.88 kOhms
+  * Acc (X,Y,Z)[mg] = (   35,   98,  839)
+  * Mag (X,Y,Z)[mGauss] = ( -327,  505, -568)
+  * Visible: 704
+  * Infrared: 210
   * Reed Switch: 0
 
-[Payload 0] 058FE2C4D0D3130D797000B1
-[Payload 1] 068FFD02D0062313E5A020C0
-[Payload 2] 0332725430031830030000B1
-[Payload 3] 083003E000000000000000CF
+[Payload 0] 1202306234727B12A39CBC3C
+[Payload 1] 2FE0032FC8182C02C000D236
 
 SigFox uplink... 
-AT$SF=058FE2C4D0D3130D797000B1,0
+AT$SF=1202306234727B12A39CBC3C,0
 OK
-AT$SF=068FFD02D0062313E5A020C0,0
-OK
-AT$SF=0332725430031830030000B1,0
-OK
-AT$SF=083003E000000000000000CF,0
+AT$SF=2FE0032FC8182C02C000D236,0
 OK
 AT$SLEEP
 OK
@@ -320,31 +306,25 @@ Done
 
 Interrupt detected: Reed Switch 
 AT$ZONE?
-2
-  * RC = 2
-  * Temperature = 34.51 *C
-  * Humidity = 50.83 %
-  * Pressure = 1002.11 hPa
-  * Air Quality = 6.40 kOhms
-  * Acc (X,Y,Z)[mg] = (  -19, -970,  195)
-  * Mag (X,Y,Z)[mGauss] = (  354,  114,  340)
-  * Visible: 49
-  * Infrared: 65
+1
+  * RC = 1
+  * Temperature = 25.47 *C
+  * Humidity = 47.70 %
+  * Pressure = 1003.19 hPa
+  * Air Quality = 61.20 kOhms
+  * Acc (X,Y,Z)[mg] = (  -15,   12, 1014)
+  * Mag (X,Y,Z)[mGauss] = ( 2524, 2326, -496)
+  * Visible: 748
+  * Infrared: 218
   * Reed Switch: 1
 
-[Payload 0] 058FEDC360C3130D7A7010CA
-[Payload 1] 06802300B0222313DAA02016
-[Payload 2] 03327254300408300310000B
-[Payload 3] 08300410000000000000009D
+[Payload 0] 13FF100C3F627CD2A19CBCD4
+[Payload 1] 20FC0E8FCF17E802EC00DAB7
 
 SigFox uplink... 
-AT$SF=058FEDC360C3130D7A7010CA,0
+AT$SF=13FF100C3F627CD2A19CBCD4,0
 OK
-AT$SF=06802300B0222313DAA02016,0
-OK
-AT$SF=03327254300408300310000B,0
-OK
-AT$SF=08300410000000000000009D,0
+AT$SF=20FC0E8FCF17E802EC00DAB7,0
 OK
 AT$SLEEP
 OK
@@ -357,31 +337,25 @@ Done
 
 Interrupt detected: Timer 
 AT$ZONE?
-2
-  * RC = 2
-  * Temperature = 34.43 *C
-  * Humidity = 51.43 %
-  * Pressure = 1002.11 hPa
-  * Air Quality = 6.07 kOhms
-  * Acc (X,Y,Z)[mg] = (  -19, -958,  203)
-  * Mag (X,Y,Z)[mGauss] = (  -15,  456,   81)
-  * Visible: 65
-  * Infrared: 85
+1
+  * RC = 1
+  * Temperature = 25.31 *C
+  * Humidity = 48.09 %
+  * Pressure = 1003.02 hPa
+  * Air Quality = 66.57 kOhms
+  * Acc (X,Y,Z)[mg] = (   23,   20, 1014)
+  * Mag (X,Y,Z)[mGauss] = ( -343,  442, -613)
+  * Visible: 733
+  * Infrared: 182
   * Reed Switch: 0
 
-[Payload 0] 058FEDC420CB130D737000F3
-[Payload 1] 068FFF02D008231416A02038
-[Payload 2] 033272543003C8300410009D
-[Payload 3] 083005500000000000000038
+[Payload 0] 120170143F6278D2C99CB831
+[Payload 1] 2FDE02CFC31A0102DD00B68B
 
 SigFox uplink... 
-AT$SF=058FEDC420CB130D737000F3,0
+AT$SF=120170143F6278D2C99CB831,0
 OK
-AT$SF=068FFF02D008231416A02038,0
-OK
-AT$SF=033272543003C8300410009D,0
-OK
-AT$SF=083005500000000000000038,0
+AT$SF=2FDE02CFC31A0102DD00B68B,0
 OK
 AT$SLEEP
 OK
