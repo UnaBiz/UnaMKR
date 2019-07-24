@@ -83,13 +83,32 @@ public:
     /* constructor & destructor */
     UnaMkrMessage() 
     {
+        flag_optimize = false;
         clear();
         setScale(Temperature, 100.0);
         setScale(Humidity, 100.0);
-        setScale(Pressure, 0.1);
-        setScale(IndoorAirQuality, 0.01);
+        setScale(Pressure, 10.0/100);
+        setScale(IndoorAirQuality, 10.0/1000);
         setScale(Acceletometer, 1);
-        setScale(Magnetometer, 0.1);
+        setScale(Magnetometer, 100.0/1000);
+        setScale(LightSensor, 1);
+        setScale(InfraredSensor, 1);
+        timeout_SendFrame = 10000;     // default 10 seconds
+    }
+    UnaMkrMessage(bool optimize)
+    {
+        flag_optimize = optimize;
+        clear();
+        if (flag_optimize)
+            setScale(IndoorAirQuality, 100.0/1000);
+        else
+            setScale(IndoorAirQuality, 10.0/1000);
+        
+        setScale(Temperature, 100.0);
+        setScale(Humidity, 100.0);
+        setScale(Pressure, 10.0/100);
+        setScale(Acceletometer, 1);
+        setScale(Magnetometer, 100.0/1000);
         setScale(LightSensor, 1);
         setScale(InfraredSensor, 1);
         timeout_SendFrame = 10000;     // default 10 seconds
@@ -151,6 +170,10 @@ public:
     bool setTimeout(int timeout);
     int  getTimeout(void);
 
+    /* Setup optimization of payload */
+    void setPayloadOptimize(bool opt){flag_optimize = opt;}
+    bool getPayloadOptimize(void){return flag_optimize;}
+
 private:
     bool add_snr_field(uint8_t snr_type, bit_len_t bit_len, uint8_t *data);
 
@@ -178,6 +201,9 @@ private:
 
     /* timeout for uplink */
     int   timeout_SendFrame;
+
+    /* flag */
+    bool  flag_optimize;
 };
 
 /* UnaShield Message */
