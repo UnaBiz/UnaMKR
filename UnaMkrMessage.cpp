@@ -37,9 +37,28 @@ static uint8_t calc_crc8(uint8_t *buf, int length) {
 
 void UnaMkrMessage :: clear(void)
 {
-    pl_num = 0;
-    memset(pl_bcd_offset, 0, sizeof(pl_bcd_offset));
-    memset(payload, 0, sizeof(payload));
+    if (flag_optimize)
+    {
+        pl_num = 2;
+        memset(pl_bcd_offset, 0, sizeof(pl_bcd_offset));
+        memset(payload, 0, sizeof(payload));
+
+#if UNAMKR_MSG_HEADER
+        // header
+        payload[0].raw[0] = 0x10;
+        payload[1].raw[0] = 0x20;
+
+        // tailer
+        payload[0].raw[11] = calc_crc8(payload[0].raw, 11);
+        payload[1].raw[11] = calc_crc8(payload[1].raw, 11);
+#endif
+    }
+    else
+    {
+        pl_num = 0;
+        memset(pl_bcd_offset, 0, sizeof(pl_bcd_offset));
+        memset(payload, 0, sizeof(payload));
+    }
 }
 
 bool UnaMkrMessage :: setScale(mkr_snr_t snr, float scale)
@@ -125,8 +144,21 @@ bool UnaMkrMessage :: setScale(usr_snr_t snr, float scale)
 
 bool UnaMkrMessage :: addField_RCZone(uint8_t zone)
 {
-    uint8_t data_be = (zone << 4) & 0xF0;
-    return add_snr_field(RCZone, BitLength_4_Bits, &data_be);
+    if (flag_optimize)
+    {
+        payload[0].raw[0] &= 0xF1;
+        payload[0].raw[0] |= (zone & 0x07) << 1;
+#if UNAMKR_MSG_HEADER
+        // tailer
+        payload[0].raw[11] = calc_crc8(payload[0].raw, 11);
+#endif
+        return true;
+    }
+    else
+    {
+        uint8_t data_be = (zone << 4) & 0xF0;
+        return add_snr_field(RCZone, BitLength_4_Bits, &data_be);
+    }
 }
 
 bool UnaMkrMessage :: addField_Temperature(float value)
@@ -142,17 +174,34 @@ bool UnaMkrMessage :: addField_Temperature(float value)
 
     data = (int16_t)(value * scale_temperature);
 
-    data_be[0] = (((uint16_t)data) >> 8) & 0xFF;
-    data_be[1] = (((uint16_t)data)     ) & 0xFF;
-    
-    return add_snr_field(Temperature, BitLength_16_Bits, data_be);
+    if (flag_optimize)
+    {
+        // 14 bits
+        payload[0].raw[5] &= 0xF0;  // 4 bits
+        payload[0].raw[6] &= 0x00;  // 8 bits
+        payload[0].raw[7] &= 0x3F;  // 2 bits
+        payload[0].raw[5] |= ((data >> 10) & 0x000F);
+        payload[0].raw[6] |= ((data >>  2) & 0x00FF);
+        payload[0].raw[7] |= ((data <<  6) & 0x00C0);
+#if UNAMKR_MSG_HEADER
+        // tailer
+        payload[0].raw[11] = calc_crc8(payload[0].raw, 11);
+#endif
+        return true;
+    }
+    else
+    {
+        data_be[0] = (((uint16_t)data) >> 8) & 0xFF;
+        data_be[1] = (((uint16_t)data)     ) & 0xFF;
+        return add_snr_field(Temperature, BitLength_16_Bits, data_be);
+    }
 }
 
 /* Add Humidity Field */
 bool UnaMkrMessage :: addField_Humidity(float value)
 {
     uint8_t data_be[12];
-    int16_t data;
+    uint16_t data;
 
     // input unit: %, 
     // 
@@ -160,19 +209,34 @@ bool UnaMkrMessage :: addField_Humidity(float value)
     // default scale: x100, 
     // ex: 32.92 %
 
-    data = (int16_t)(value * scale_humidity);
+    data = (uint16_t)(value * scale_humidity);
 
-    data_be[0] = (((uint16_t)data) >> 8) & 0xFF;
-    data_be[1] = (((uint16_t)data)     ) & 0xFF;
-    
-    return add_snr_field(Humidity, BitLength_16_Bits, data_be);
+    if (flag_optimize)
+    {
+        // 14 bits
+        payload[0].raw[7] &= 0xC0;  // 6 bits
+        payload[0].raw[8] &= 0x00;  // 8 bits
+        payload[0].raw[7] |= ((data >> 8) & 0x003F);
+        payload[0].raw[8] |= ((data     ) & 0x00FF);
+#if UNAMKR_MSG_HEADER
+        // tailer
+        payload[0].raw[11] = calc_crc8(payload[0].raw, 11);
+#endif
+        return true;
+    }
+    else
+    {
+        data_be[0] = (data >> 8) & 0xFF;
+        data_be[1] = (data     ) & 0xFF;
+        return add_snr_field(Humidity, BitLength_16_Bits, data_be);
+    }
 }
 
 /* Add Pressure Field */
 bool UnaMkrMessage :: addField_Pressure(float value)
 {
     uint8_t data_be[12];
-    int16_t data;
+    uint16_t data;
 
     // input unit: Pa, 
     // 
@@ -180,31 +244,61 @@ bool UnaMkrMessage :: addField_Pressure(float value)
     // default scale: x10, 
     // ex: 1002.2 hPa
 
-    data = (int16_t)(value * scale_pressure);
+    data = (uint16_t)(value * scale_pressure);
 
-    data_be[0] = (((uint16_t)data) >> 8) & 0xFF;
-    data_be[1] = (((uint16_t)data)     ) & 0xFF;
-    
-    return add_snr_field(Pressure, BitLength_16_Bits, data_be);
+    if (flag_optimize)
+    {
+        // 14 bits
+        payload[0].raw[ 9] &= 0x00;  // 8 bits
+        payload[0].raw[10] &= 0x03;  // 6 bits
+        payload[0].raw[ 9] |= ((data >> 6) & 0x00FF);
+        payload[0].raw[10] |= ((data << 2) & 0x00FC);
+#if UNAMKR_MSG_HEADER
+        // tailer
+        payload[0].raw[11] = calc_crc8(payload[0].raw, 11);
+#endif
+        return true;
+    }
+    else
+    {
+        data_be[0] = (data >> 8) & 0xFF;
+        data_be[1] = (data     ) & 0xFF;
+        return add_snr_field(Pressure, BitLength_16_Bits, data_be);
+    }
 }
 
 /* Add IAQ Field */
 bool UnaMkrMessage :: addField_IndoorAirQuality(uint32_t value)
 {
     uint8_t data_be[12];
-    int16_t data;
+    uint16_t data;
 
     // input unit: Ohms, 
     // 
     // data unit: kOhms
-    // default scale: x10 
+    // default scale: x10 or x100
 
-    data = (int16_t)(value * scale_gas);
+    data = (uint16_t)(value * scale_gas);
+    data_be[0] = (data >> 8) & 0xFF;
+    data_be[1] = (data     ) & 0xFF;
 
-    data_be[0] = (((uint16_t)data) >> 8) & 0xFF;
-    data_be[1] = (((uint16_t)data)     ) & 0xFF;
-    
-    return add_snr_field(IndoorAirQuality, BitLength_16_Bits, data_be);
+    if (flag_optimize)
+    {
+        // 16 bits
+        payload[1].raw[5] &= 0x00;  // 8 bits
+        payload[1].raw[6] &= 0x00;  // 8 bits
+        payload[1].raw[5] |= data_be[0];
+        payload[1].raw[6] |= data_be[1];
+#if UNAMKR_MSG_HEADER
+        // tailer
+        payload[1].raw[11] = calc_crc8(payload[1].raw, 11);
+#endif
+        return true;
+    }
+    else
+    {
+        return add_snr_field(IndoorAirQuality, BitLength_16_Bits, data_be);
+    }
 }
 
 /* Add Acceletometer Field */
@@ -230,31 +324,76 @@ bool UnaMkrMessage :: addField_Acceletometer(int32_t *axes_xyz)
     data_be[3] = (((uint16_t)data) >> 4) & 0xFF;    // bit 11 ~ 4
     data_be[4] = (((uint16_t)data) << 4) & 0xF0;    // bit  3 ~ 0 at high
 
-    return add_snr_field(Acceletometer, BitLength_36_Bits, data_be);
+    if (flag_optimize)
+    {
+        // 14 bits
+        payload[0].raw[1] &= 0x00;  // 8 bits
+        payload[0].raw[2] &= 0x00;  // 8 bits
+        payload[0].raw[3] &= 0x00;  // 8 bits
+        payload[0].raw[4] &= 0x00;  // 8 bits
+        payload[0].raw[5] &= 0xF0;  // 4 bits
+        payload[0].raw[1] |= data_be[0];
+        payload[0].raw[2] |= data_be[1];
+        payload[0].raw[3] |= data_be[2];
+        payload[0].raw[4] |= data_be[3];
+        payload[0].raw[5] |= data_be[4];
+
+#if UNAMKR_MSG_HEADER
+        // tailer
+        payload[0].raw[11] = calc_crc8(payload[0].raw, 11);
+#endif
+        return true;
+    }
+    else
+    {
+        return add_snr_field(Acceletometer, BitLength_36_Bits, data_be);
+    }
 }
 
 /* Add Magnetometer Field */
 bool UnaMkrMessage :: addField_Magnetometer(int32_t *axes_xyz)
 {
     uint8_t data_be[12];
-    int16_t data;
+    int16_t data[3];
 
     // input  unit: mGauss
     // data unit: Gause
-    
-    data = (int16_t) (axes_xyz[0] * scale_magnetometer);    // 12 bits
-    data_be[0] = (((uint16_t)data) >> 4) & 0xFF;    // bit 11 ~ 4
-    data_be[1] = (((uint16_t)data) << 4) & 0xF0;    // bit  3 ~ 0 at high
+    data[0] = (int16_t) (axes_xyz[0] * scale_magnetometer);    // 12 bits
+    data[1] = (int16_t) (axes_xyz[1] * scale_magnetometer);    // 12 bits
+    data[2] = (int16_t) (axes_xyz[2] * scale_magnetometer);    // 12 bits
 
-    data = (int16_t) (axes_xyz[1] * scale_magnetometer);    // 12 bits
-    data_be[1]|= (((uint16_t)data) >> 8) & 0x0F;    // bit 11 ~ 8 at low
-    data_be[2] = (((uint16_t)data)     ) & 0xFF;    // bit 7 ~ 0
+    if (flag_optimize)
+    {
+        // 14 bits
+        payload[1].raw[0] &= 0xF0;  // 4 bits
+        payload[1].raw[1] &= 0x00;  // 8 bits
+        payload[1].raw[2] &= 0x00;  // 8 bits
+        payload[1].raw[3] &= 0x00;  // 8 bits
+        payload[1].raw[4] &= 0x00;  // 8 bits
+        payload[1].raw[0] |= (((uint16_t)data[0]) >> 8) & 0x0F;
+        payload[1].raw[1] |= (((uint16_t)data[0])     ) & 0xFF;
+        payload[1].raw[2] |= (((uint16_t)data[1]) >> 4) & 0xFF;
+        payload[1].raw[3] |= (((uint16_t)data[1]) << 4) & 0xF0;
+        payload[1].raw[3] |= (((uint16_t)data[2]) >> 8) & 0x0F;
+        payload[1].raw[4] |= (((uint16_t)data[2])     ) & 0xFF;
 
-    data = (int16_t) (axes_xyz[2] * scale_magnetometer);    // 12 bits
-    data_be[3] = (((uint16_t)data) >> 4) & 0xFF;    // bit 11 ~ 4
-    data_be[4] = (((uint16_t)data) << 4) & 0xF0;    // bit  3 ~ 0 at high
+#if UNAMKR_MSG_HEADER
+        // tailer
+        payload[1].raw[11] = calc_crc8(payload[1].raw, 11);
+#endif
+        return true;
+    }
+    else
+    {
+        data_be[0] = (((uint16_t)data[0]) >> 4) & 0xFF;    // bit 11 ~ 4
+        data_be[1] = (((uint16_t)data[0]) << 4) & 0xF0;    // bit  3 ~ 0 at high
+        data_be[1]|= (((uint16_t)data[1]) >> 8) & 0x0F;    // bit 11 ~ 8 at low
+        data_be[2] = (((uint16_t)data[1])     ) & 0xFF;    // bit 7 ~ 0
+        data_be[3] = (((uint16_t)data[2]) >> 4) & 0xFF;    // bit 11 ~ 4
+        data_be[4] = (((uint16_t)data[2]) << 4) & 0xF0;    // bit  3 ~ 0 at high
 
-    return add_snr_field(Magnetometer, BitLength_36_Bits, data_be);
+        return add_snr_field(Magnetometer, BitLength_36_Bits, data_be);
+    }
 }
     
 /* Add Ambient Light Field */
@@ -272,7 +411,23 @@ bool UnaMkrMessage :: addField_LightSensor(uint16_t visiable_value)
     data_be[0] = (data >> 8) & 0xFF;
     data_be[1] = (data     ) & 0xFF;
     
-    return add_snr_field(LightSensor, BitLength_16_Bits, data_be);
+    if (flag_optimize)
+    {
+        // 16 bits
+        payload[1].raw[7] &= 0x00;  // 8 bits
+        payload[1].raw[8] &= 0x00;  // 8 bits
+        payload[1].raw[7] |= data_be[0];
+        payload[1].raw[8] |= data_be[1];
+#if UNAMKR_MSG_HEADER
+        // tailer
+        payload[1].raw[11] = calc_crc8(payload[1].raw, 11);
+#endif
+        return true;
+    }
+    else
+    {
+        return add_snr_field(LightSensor, BitLength_16_Bits, data_be);
+    }
 }
 
 /* Add Ambient Infrared Field */
@@ -290,20 +445,45 @@ bool UnaMkrMessage :: addField_InfraredSensor(uint16_t ir_value)
     data_be[0] = (data >> 8) & 0xFF;
     data_be[1] = (data     ) & 0xFF;
     
-    return add_snr_field(LightSensor, BitLength_16_Bits, data_be);
+    if (flag_optimize)
+    {
+        // 16 bits
+        payload[1].raw[ 9] &= 0x00;  // 8 bits
+        payload[1].raw[10] &= 0x00;  // 8 bits
+        payload[1].raw[ 9] |= data_be[0];
+        payload[1].raw[10] |= data_be[1];
+#if UNAMKR_MSG_HEADER
+        // tailer
+        payload[1].raw[11] = calc_crc8(payload[1].raw, 11);
+#endif
+        return true;
+    }
+    else
+    {
+        return add_snr_field(LightSensor, BitLength_16_Bits, data_be);
+    }
 }
 
 bool UnaMkrMessage :: addField_ReedSwitch(bool detected)
 {
-    uint8_t data_be;
-    // input unit: NAN, 
-    // 
-    // data unit: NAN
-    // scale    : NAN 
-    // ex: 1
+    if (flag_optimize)
+    {
+        payload[0].raw[0] &= 0xFE;
+        payload[0].raw[0] |= (detected) ? (0x01) : (0x00);
+        return true;
+    }
+    else
+    {
+        uint8_t data_be;
+        // input unit: NAN, 
+        // 
+        // data unit: NAN
+        // scale    : NAN 
+        // ex: 1
 
-    data_be = (detected) ? (0x10) : (0x00);
-    return add_snr_field(ReedSwitch, BitLength_4_Bits, &data_be);
+        data_be = (detected) ? (0x10) : (0x00);
+        return add_snr_field(ReedSwitch, BitLength_4_Bits, &data_be);
+    }
 }
 
 bool UnaMkrMessage :: addField_User(usr_snr_t snr, bit_len_t bit_len, double value)
@@ -662,6 +842,10 @@ bool UnaMkrMessage :: add_snr_field(uint8_t snr_type, bit_len_t b_len, uint8_t *
 
     /* bit-length must be larger than 4 */
     if (bit_len < 4)
+        return false;
+
+    /* exit if flag of optimization is set */
+    if (flag_optimize)
         return false;
     
     /* check remaining payload size */
