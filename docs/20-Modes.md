@@ -48,20 +48,27 @@ Following table indicates the actions to take depending on the current and targe
 !> CAUTION  \
 Please do not interrupt/disconnect device when FLASH programming.
 
-1. Power off UnaMKR (remove all USB or Power cables)
-2. Make sure UnaMKR isn't attached to any Arduino board
-3. Connect Jumpers
+1. Download and install the [flasher utility](https://www.st.com/content/st_com/en/products/embedded-software/wireless-connectivity-software/stsw-bnrgflasher.html#overview)
+
+2. Power off UnaMKR (remove all USB or Power cables)
+
+3. Make sure UnaMKR isn't attached to any Arduino board
+
+4. Connect Jumpers
   * J10 ON
   * J11 RIGHT
   * J7 RIGHT
   * J6 RIGHT
-4. Make sure you have installed the [relevant driver](https://www.silabs.com/products/development-tools/software/usb-to-uart-bridge-vcp-drivers)
-5. Connect UnaMKR to your computer using a MicroUSB cable
 
-6. Copy your firmware binary file to folder ‘Firmware’ and replace old binary file with the same file name.
-7. Select \*.BAT that you would like to burn. In BAT script, the binary data is specific. If you would like to modify script, please notice that the data name and path of binary file is correct.
-8. Execute burnFw.bat. The tool is going to upload firmware to UnaMKR via UART COM port automatically. Please wait until procedure completed (should)
-9. Done!
+5. Make sure you have installed the [relevant driver](https://www.silabs.com/products/development-tools/software/usb-to-uart-bridge-vcp-drivers)
+
+6. Connect UnaMKR to your computer using a MicroUSB cable
+
+7. Browse to the firmware folder downloaded from [https://github.com/UnaBiz/unamkr/](https://github.com/UnaBiz/unamkr).
+
+8. Execute burnFw.bat and select the firmware that you'd like to use. The tool is going to upload firmware to UnaMKR via UART COM port automatically. Please wait until procedure completed (should)
+
+9.  Done!
 
 !> Unconnect Jumper J10 to exit Flash mode
 
