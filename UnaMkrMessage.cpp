@@ -331,7 +331,7 @@ bool UnaMkrMessage :: addField_Acceletometer(int32_t *axes_xyz)
         payload[0].raw[2] &= 0x00;  // 8 bits
         payload[0].raw[3] &= 0x00;  // 8 bits
         payload[0].raw[4] &= 0x00;  // 8 bits
-        payload[0].raw[5] &= 0xF0;  // 4 bits
+        payload[0].raw[5] &= 0x0F;  // 4 bits
         payload[0].raw[1] |= data_be[0];
         payload[0].raw[2] |= data_be[1];
         payload[0].raw[3] |= data_be[2];
