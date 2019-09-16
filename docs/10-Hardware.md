@@ -73,10 +73,6 @@ This is how to connect antennas to UnaMKR.
 
 ![](img/unamkr-jumpers-j4.png)
 
-
-
-
-
 # Sensors I2C Addresses
 
 | Sensor | I2C Address |
@@ -88,3 +84,36 @@ This is how to connect antennas to UnaMKR.
 | Humidity Sensor(BME280) |	0x77
 | Pressure Sensor(BME280) |	0x77
 | Light Sensor(TSL2540)	| 0x39
+
+# Pin Assignment
+
+| Arduino Pins | UnaMKR V1.2                    | Description                                                 |
+|--------------|--------------------------------|-------------------------------------------------------------|
+| AREF         | NC                             | Voltage Reference System                                    |
+| A0           | NC                             | Analog Pin-0                                                |
+| A1           | NC                             | Analog Pin-1                                                |
+| A2           | NC                             | Analog Pin-2                                                |
+| A3           | NC                             | Analog Pin-3                                                |
+| A4           | NC                             | Analog Pin-4                                                |
+| A5           | NC                             | Analog Pin-5                                                |
+| A6           | NC                             | Analog Pin-6                                                |
+| 0            | SDN                            | S2LP SDN                                                    |
+| 1            | Push Button                    | Push button；Push to low signal level                       |
+| ~2           | Light Sensor Interrupt         | Light Sensor Interrupt                                      |
+| ~3           | Magnetometer Sensor Interrupt  | Magnetometer Sensor Interrupt                               |
+| ~4           | Accelerometer Sensor Interrupt | Accelerometer Sensor Interrupt                              |
+| ~5           | NC                             | Digital Pin-5                                               |
+| 6            | Reed Sensor                    | Reed Sensor                                                 |
+| 7            | NC                             | Digital Pin-7                                               |
+| 8 MOSI       | NC                             | Digital Pin-8                                               |
+| 9 SCK        | NC                             | Digital Pin-9                                               |
+| 10 MISO      | NC                             | Digital Pin-10                                              |
+| 11 SDA       | SDA                            | I2C-SDA                                                     |
+| 12 SCL       | SCL                            | I2C-SCL                                                     |
+| 13 RX        | RX                             | Arduino MKRZERO UART receiving pin; UnaMKR transmitting pin |
+| 14 TX        | TX                             | Arduino MKRZERO UART transmitting pin; UnaMKR receiving pin |
+| RESET        | RESET                          | Reset Arduino MCU & Sigfox Module；Low active               |
+| GND          | GND                            | Grounding & power/signal reference level                    |
+| VCC          | NC                             | 3V3 Power Source from Arduino platform                      |
+| VIN          | NC                             | Extra power source input of Arduino platform                |
+| 5V           | 5V                             | 5V Power Source from Arduino platform
