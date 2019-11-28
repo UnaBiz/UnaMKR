@@ -1,4 +1,4 @@
-# UnaMKR Mini Modem Mode
+# UnaMKR Modem Mode
 
 The following tutorials will guide you through how to setup the software development environment and everything you need to start with your IoT projects.
 
