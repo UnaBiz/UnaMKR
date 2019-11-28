@@ -477,6 +477,34 @@ Response: OK
    <td>
    </td>
   </tr>
+   <tr>
+   <td>26
+   </td>
+   <td>Activate CW Mode
+   </td>
+   <td>Activate continuous wave mode at specific frequency.
+   </td>
+   <td>AT$CWO=frequency
+   </td>
+   <td>OK
+   </td>
+   <td>AT$CWO=920800000 will open continuous wave at frequency 920800000 (RC4)
+   </td>
+  </tr>
+   <tr>
+   <td>27
+   </td>
+   <td>Deactivate CW Mode
+   </td>
+   <td>Deactivate continuous wave mode
+   </td>
+   <td>AT$CWC
+   </td>
+   <td>OK
+   </td>
+   <td>
+   </td>
+  </tr>
 </table>
 
 
