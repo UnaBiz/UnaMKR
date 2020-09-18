@@ -45,6 +45,9 @@ void loop() {
     char id[12], pac[20], addr[13], fw_ver[12], zone[4];
     int  resp_len;
 
+    // Wait serial port ready
+    if (!Serial) return;
+
     // Get SigFox device ID
     my_mkr.getId();
     my_mkr.getData(id, &resp_len, TIME_WAIT_RESPONSE);

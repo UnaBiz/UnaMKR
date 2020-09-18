@@ -4,12 +4,11 @@ UnaMKR has been designed to run in different operating modes to fit different ne
 
 There are 3 modes available:
 
-*   "Modem": USB Sigfox Modem
-*   "Arduino": Standard Arduino MKR shield
-*   "Embed": Standalone ultra low power IoT device, powered by ST BlueNRG-2 SoC
+* "Modem": USB Sigfox Modem
+* "Arduino": Standard Arduino MKR shield
+* "Embed": Standalone ultra low power IoT device, powered by ST BlueNRG-2 SoC
 
-
-# Comparing the modes
+## Comparing the modes
 
 | Criteria | Arduino | Modem | Embed
 ---|:---:|:---:|:---:
@@ -18,19 +17,15 @@ There are 3 modes available:
 | Power Source | Arduino Pins | Micro USB / DC | Micro USB / DC
 | Available Sensors | All | None | All
 
+## Prerequisites
 
-# Prerequisites
+* Data-enabled MicroUSB cable
+* Computer with at least 1 available USB port
+* Computer with Windows (only supported Operating System by ST tools)
+* Total of 4 Jumpers
+* And … UnaMKR :-)
 
-
-
-*   Data-enabled MicroUSB cable
-*   Computer with at least 1 available USB port
-*   Computer with Windows (only supported Operating System by ST tools)
-*   Total of 4 Jumpers
-*   And … UnaMKR :-)
-
-
-# Switching mode
+## Switching mode
 
 Following table indicates the actions to take depending on the current and target modes:
 
@@ -55,10 +50,10 @@ Please do not interrupt/disconnect device when FLASH programming.
 3. Make sure UnaMKR isn't attached to any Arduino board
 
 4. Connect Jumpers
-  * J10 ON
-  * J11 RIGHT
-  * J7 RIGHT
-  * J6 RIGHT
+   * J10 ON
+   * J11 RIGHT
+   * J7 RIGHT
+   * J6 RIGHT
 
 5. Make sure you have installed the [relevant driver](https://www.silabs.com/products/development-tools/software/usb-to-uart-bridge-vcp-drivers)
 
@@ -68,25 +63,25 @@ Please do not interrupt/disconnect device when FLASH programming.
 
 8. Execute burnFw.bat and select the firmware that you'd like to use. The tool is going to upload firmware to UnaMKR via UART COM port automatically. Please wait until procedure completed (should)
 
-9.  Done!
+9. Done!
 
 !> Unconnect Jumper J10 to exit Flash mode
 
 ## Positioning Jumpers
 
-*   Arduino Mode (Factory Default)
-    *   J11 LEFT
-    *   J7 LEFT
-    *   J6 LEFT
+* Arduino Mode (Factory Default)
+  * J11 LEFT
+  * J7 LEFT
+  * J6 LEFT
 
-![](img/unamkr-mode-arduino.png)
+![alt text](img/unamkr-mode-arduino.png)
 
-*   Modem and Embed Modes
-    *   J11 RIGHT
-    *   J7 RIGHT
-    *   J6 RIGHT
+* Modem and Embed Modes
+  * J11 RIGHT
+  * J7 RIGHT
+  * J6 RIGHT
 
-![](img/unamkr-mode-standalone.png)
+![alt text](img/unamkr-mode-standalone.png)
 
 ?> Note: Check [hardware documentation](10-Hardware) for more details.
 
