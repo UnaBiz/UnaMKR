@@ -12,19 +12,10 @@
 #ifndef __UNAMKR__
 #define __UNAMKR__
 
+#include "UnaMkrMonarch.h"
 #include "UnaMkrBle.h"
 #include "UnaMkrMessage.h"
 #include "UnaMkrBufferQueue.h"
-
-enum eRCZONE
-{
-   RCZ_1 = 1,
-   RCZ_2 = 2,
-   RCZ_3 = 3,
-   RCZ_4 = 4,
-   RCZ_5 = 5,
-   RCZ_6 = 6,
-};
 
 class UnaMKR : public UnaMkrBufferQueue
 {
@@ -54,16 +45,19 @@ public:
   int   echo(void);
   int   reset(void);
   int   sleep(void);
-  int   sleep(int sleep_time);
+  int   sleep(int sleep_time_ms);
   int   wakeup(void);
   int   getVersion(void);
+  int   getInfo(void);
   
   /* Sigfox commands */
   int   getId(void);
   int   getPac(void);
   int   getZone(void);
   int   setZone(int rcz);
-  int   monarch(int search_time);
+  int   setZone(enum eRCZONE ercz);
+  int   monarch(int search_time_ms);
+  int   getMonarch(void);
   int   publicKey(bool enable);
 
   /* Uplink ASCII string data */
@@ -96,12 +90,15 @@ public:
   int   setBtDeviceAddress(const char *pBdAddr);
   int   getBtDeviceAddress(void);
   int   btReset(void);
-  int   btScan(int scan_time, int RSSI_filter, int Adv_filter);
-  int   btScan(int scan_time, ScanRssiFilter RSSI_filter, ScanAdvFilter Adv_filter);
+  int   btScan(void);
+  int   btScan(int scan_time_ms);
+  int   btScan(int scan_time_ms, int RSSI_filter, int Adv_filter);
+  int   btScan(int scan_time_ms, ScanRssiFilter RSSI_filter, ScanAdvFilter Adv_filter);
   int   btGetScanResult(void);
   int   btAdvertising(UnaAdvertiser* adv);
   int   btConnect(const char *pBdAddress);
   int   btDisconnect(void);
+  int   btIsConnect(void);
 
   /* Peripheral TX & RX */
   int   btWrite(const String text);
@@ -122,12 +119,16 @@ public:
   /* Receive and decode as UnaScanResult */
   bool  getData_ScanResult(UnaScanResult *result, unsigned int timeout);
 
+  /* Receive and decode monarch RC zone & RSSI */
+  bool  getData_Monarch(UnaMonarch *result, unsigned int timeout);
+
   /* Configuration of log print-out on Serial (over USB) port */
   void  logEnable(bool enable);
 
 private:
   /* Initialize */
   bool  init(void);
+  bool  configEcho(bool enable);
 
   /* UART to queue */
   void  uart_write_queue(void);
@@ -145,6 +146,7 @@ private:
 
   /* Flag */
   bool fSleep = true;
+  bool fEcho = false;
 
   /* Debug log */
   bool printlog_en;

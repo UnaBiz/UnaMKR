@@ -64,8 +64,8 @@ public:
     };
     UnaScanResult(char *response)
     {
-    	if (response)
-        	decodeScanResult(response);
+        if (response)
+            decodeScanResult(response);
     };
 
     // destructor
@@ -74,7 +74,7 @@ public:
     // method
     void clear (void)
     {
-    	AdvType     = NON_CONNECTABLE;
+        AdvType     = NON_CONNECTABLE;
         AddressType = PUBLIC_ADDRESS;
         HexDataLength = 0;
 
@@ -87,44 +87,44 @@ public:
     /* transfer response data to UnaScanResult */
     bool decodeScanResult(char *response)
     {
-    	int  i, num, conn, addr_type, rssi, adv_len;
+        int  i, num, conn, addr_type, rssi, adv_len;
 
         if (strlen((const char*)response) < 16)
             return false;
 
-	    num = sscanf((const char*) response,
-	                "%d,%d,%12s,%d,%d,%s",
-	                &conn,
-	                &addr_type,
-	                &Address[0],
-	                &rssi,
-	                &adv_len,
-	                &Data[0]);
+        num = sscanf((const char*) response,
+                    "%d,%d,%12s,%d,%d,%s",
+                    &conn,
+                    &addr_type,
+                    &Address[0],
+                    &rssi,
+                    &adv_len,
+                    &Data[0]);
 
-	    // set value of element
-	    AdvType     = (ScanAdvType) conn;
-	    AddressType = (ScanAddressType) addr_type;
-	    RSSI        = (signed char) rssi;
-	    HexDataLength = (byte) adv_len;
+        // set value of element
+        AdvType     = (ScanAdvType) conn;
+        AddressType = (ScanAddressType) addr_type;
+        RSSI        = (signed char) rssi;
+        HexDataLength = (byte) adv_len;
 
         // check adv structure
         if (num < 5 || adv_len >= 32)
             return false;
 
-	    // string to hex
-	    for (i=0; i<6; i++)
-	    {
-	        sscanf_02X((const char*)&Address[2*i], &HexAddress[i]);
-	    }
-	    for (i=0; i<adv_len; i++)
-	    {
-	        sscanf_02X((const char*)&Data[2*i], &HexData[i]);
-	    }
+        // string to hex
+        for (i=0; i<6; i++)
+        {
+            sscanf_02X((const char*)&Address[2*i], &HexAddress[i]);
+        }
+        for (i=0; i<adv_len; i++)
+        {
+            sscanf_02X((const char*)&Data[2*i], &HexData[i]);
+        }
 
         // end of string
         Data[adv_len*2] = 0;
 
-	    return true;
+        return true;
     };
 
     // elements
@@ -163,7 +163,7 @@ typedef enum  __Adv_type__
     /*  */
     ADV_TYPE_IPS        = 0x25,
     ADV_TYPE_3D_INFO    = 0x3D,
-    ADV_TYPE_CUSTOM_MANUFACTUTE = 0xFF,
+    ADV_TYPE_MANUFACTURER = 0xFF,
 
 } AdvType_t;
 

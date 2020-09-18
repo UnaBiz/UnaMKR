@@ -95,6 +95,7 @@ void loop() {
     char response[128];
     byte payload;
     int  resp_len;
+    UnaMonarch result;
 
     // Check interrupt status
     if (!button_pressed && !timer_detect) {
@@ -118,10 +119,27 @@ void loop() {
     
     // Wait response
     if (my_mkr.getData_CheckOk(TIME_MONARCH_SCAN*1000 + TIME_WAIT_RESPONSE)) {
+        Serial.println("Success! Get result");
+        my_mkr.getMonarch();
+        if (my_mkr.getData_Monarch(&result, TIME_WAIT_RESPONSE) == true)
+        {
+            if (result.checkAvailable() && result.checkSuccessful())
+            {
+                Serial.print("Detect RCZ = ");
+                Serial.print(result.getRc(), DEC);
+                Serial.print(", RSSI = ");
+                Serial.print(result.getRssi(), DEC);
+                Serial.println(" dBm.");
+            }
+            else
+            {
+                Serial.println("Monarch detection is failed.");
+            }
+        }
+      
         // Get current RC zone
-        Serial.println("Success! get RC-zone");
         my_mkr.getZone();
-    
+        
         // Wait response
         my_mkr.getData(response, &resp_len, TIME_WAIT_RESPONSE);
         zone = atoi(response);
@@ -158,11 +176,14 @@ Interrupt detected: Botton
 Start SigFox monarch, timeout = 310 second(s)...
 AT$MONARCH=310
 OK
-Success! get RC-zone
+Success! Get result
+AT$MONARCH?
+1,-50
+Detect RCZ = 1, RSSI = -50 dBm.
 AT$ZONE?
-2
-Current RC-zone is 2
-AT$SF=02,0
+1
+Current RC-zone is 1
+AT$SF=01,0
 OK
 AT$SLEEP
 OK
