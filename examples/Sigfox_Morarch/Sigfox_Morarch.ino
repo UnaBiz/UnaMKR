@@ -8,7 +8,7 @@
  *  Arduino Boards Manager -> Search 'MKRZERO' -> Install
  */
 
-#include "UnaMKR.h"
+#include <UnaMKR.h>
 
 /* Options */
 #define  PUBLIC_KEY_USAGE       (false)         // set 'true' to enable public key (Emulator)
@@ -44,6 +44,7 @@ void loop() {
   
     char response[128];
     int  resp_len;
+    UnaMonarch result;
 
     // Start Monarch Scan.
     //  The SigFox base-station sends a monarch signal with periodic 5 minutes.
@@ -57,6 +58,29 @@ void loop() {
     // Wait response, unit = ms
     my_mkr.getData_CheckOk(TIME_MONARCH_SCAN*1000+TIME_WAIT_RESPONSE);
     
+    // Get monarch result
+    Serial.println("Get monarch result");
+    my_mkr.getMonarch();
+    if (my_mkr.getData_Monarch(&result, TIME_WAIT_RESPONSE) == true)
+    {
+        if (result.checkAvailable() && result.checkSuccessful())
+        {
+            Serial.print("Detect RCZ = ");
+            Serial.print(result.getRc(), DEC);
+            Serial.print(", RSSI = ");
+            Serial.print(result.getRssi(), DEC);
+            Serial.println(" dBm.");
+        }
+        else
+        {
+            Serial.println("Monarch failed.");
+        }
+    }
+    else 
+    {
+        Serial.println("Command unsupported, please make sure the firmware version is v0100 or later.");
+    }
+    
     // Get current RC zone
     Serial.println("Get RCZ");
     my_mkr.getZone();
@@ -65,7 +89,7 @@ void loop() {
     my_mkr.getData(response, &resp_len, TIME_WAIT_RESPONSE);
     Serial.print("Current Zone is ");
     Serial.println(atoi(response), DEC);
-
+    
     // Delay
     Serial.println("Delay 10 seconds...");
     delay(10000);
@@ -79,6 +103,10 @@ void loop() {
 Start SigFox monarch, timeout = 310 second(s)...
 AT$MONARCH=310
 OK
+AT$MONARCH?
+1,-51
+Get monarch result
+Detect RCZ = 1, RSSI = -51 dBm.
 Get RCZ
 AT$ZONE?
 1

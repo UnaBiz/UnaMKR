@@ -46,6 +46,7 @@ void sscanf_02X(const char *src, byte *out)
 bool UnaMKR :: init(void)
 {
     unsigned long ctime, stime = millis();
+    bool status;
 
     // PIO serial port (TX, RX)
     Serial1.begin(115200);
@@ -53,9 +54,35 @@ bool UnaMKR :: init(void)
     // disable log message
     logEnable(false);
 
+    // power on init
+    reset();
+    getData_CheckOk(2500);
+
     // clear buffer queue
     resetQueue();
     return true;
+}
+
+bool UnaMKR :: configEcho(bool enable) 
+{
+    int resp_len;
+    char cmd[16], resp_data[32];
+    bool status = false;
+
+    resetQueue();
+    sprintf(cmd, "AT$ECHO=%d\r", enable ? 1 : 0);
+    Serial1.flush();
+    Serial1.print(cmd);
+    delay(100);
+    if (getData(resp_data, &resp_len, 3000) == true) 
+    {
+        if (resp_data[0] == 'A' && resp_data[1] == 'T')
+        {
+            getData_CheckOk(3000);
+        }
+        fEcho = enable;
+    }
+    return status;
 }
 
 /* ***************** Commands ***************** */
@@ -73,13 +100,29 @@ int  UnaMKR:: echo(void)
 
 int  UnaMKR:: reset(void)
 {
-    int status = chk_command_seq();
+    int resp_len, status;
+    char resp_data[32];
+
+    status = chk_command_seq();
     if (status) return status;
     if (printlog_en) Serial.println("AT$RESET");
 
     resetQueue();
     Serial1.flush();
     Serial1.print("AT$RESET\r");
+    delay(100);
+    if (getData(resp_data, &resp_len, 3000) == true) 
+    {
+        if (resp_data[0] == 'A' && resp_data[1] == 'T')
+        {
+            getData_CheckOk(1000);
+        }
+        delay(3000);
+        configEcho(fEcho);
+    }
+
+    Serial1.flush();
+    Serial1.print("AT?\r");
     return NO_ERROR;
 }
 int  UnaMKR:: sleep(void)
@@ -133,7 +176,19 @@ int  UnaMKR :: getVersion(void)
     
     return NO_ERROR;
 }
+int  UnaMKR :: getInfo(void)
+{
+    int status = chk_command_seq();
+    if (status) return status;
 
+    if (printlog_en) Serial.println("AT$INFO?");
+
+    resetQueue();
+    Serial1.flush();
+    Serial1.print("AT$INFO?\r");
+    
+    return NO_ERROR;
+}
   
 /* Sigfox commands */
 int  UnaMKR:: getId(void)
@@ -184,7 +239,7 @@ int  UnaMKR:: setZone(int rcz)
     int status = chk_command_seq();
     if (status) return status;
 
-    if (rcz < 1 || rcz > 6)
+    if (rcz < 1 || rcz > SIGFOX_MAX_RC_ZONE)
         return ERR_INVALID_PARAMETER;
 
     // set private/public key
@@ -210,6 +265,9 @@ int  UnaMKR:: setZone(int rcz)
 
     return NO_ERROR;
 }
+int  UnaMKR:: setZone(enum eRCZONE ercz) {
+    return setZone((int)ercz);
+}
 int  UnaMKR:: monarch(int search_time)
 {
     char str[32];
@@ -222,6 +280,23 @@ int  UnaMKR:: monarch(int search_time)
         return ERR_INVALID_PARAMETER;
 
     sprintf(str, "AT$MONARCH=%d\r", search_time);
+    if (printlog_en) Serial.println((const char *) str);
+
+    resetQueue();
+    Serial1.flush();
+    Serial1.print((const char*) str);
+
+    return NO_ERROR;
+}
+int UnaMKR :: getMonarch(void) 
+{
+    char str[16];
+
+    int status = chk_command_seq();
+    if (status) 
+        return status;
+    
+    sprintf(str, "AT$MONARCH?\r");
     if (printlog_en) Serial.println((const char *) str);
 
     resetQueue();
@@ -246,16 +321,6 @@ int UnaMKR :: publicKey(bool enable)
     
     return NO_ERROR;
 }
-// int UnaMKR:: getStatus(void)
-// {
-//     if (!Serial1)
-//         return ERR_SERIAL_CLOSED;
-
-//     resetQueue();
-//     Serial1.flush();
-//     Serial1.print("AT+SFSTATE\r");
-//     return NO_ERROR;
-// }
 
 // send frame data (ASCII string)
 int  UnaMKR:: uplink(const String data_str)
@@ -518,28 +583,38 @@ int  UnaMKR:: btReset(void)
     if (printlog_en) Serial.println("AT$BTRST");
     return NO_ERROR;
 }
-int  UnaMKR:: btScan(int scan_time, int RSSI_filter, int Adv_filter)
+
+int UnaMKR :: btScan(void)
+{
+    return btScan(3000, 0, 0);
+}
+int UnaMKR :: btScan(int scan_time_ms)
+{
+    return btScan(scan_time_ms, 0, 0);
+}
+
+int  UnaMKR:: btScan(int scan_time_ms, int RSSI_filter, int Adv_filter)
 {
     char str[32];
 
     int status = chk_command_seq();
     if (status) 
         return status;
-    if (!scan_time || RSSI_filter > 5 || Adv_filter > 2)
+    if (scan_time_ms <= 0 || RSSI_filter > 5 || Adv_filter > 2)
         return ERR_INVALID_PARAMETER;
     
     resetQueue();
     Serial1.flush();
     
-    sprintf(str, "AT$BTSCAN=%d,%d,%d\r", scan_time, RSSI_filter, Adv_filter);
+    sprintf(str, "AT$BTSCAN=%d,%d,%d\r", scan_time_ms, RSSI_filter, Adv_filter);
     if (printlog_en) Serial.println((const char *) str);
     Serial1.print((const char*) str);
     return NO_ERROR;
 }
 
-int UnaMKR :: btScan(int scan_time, ScanRssiFilter RSSI_filter, ScanAdvFilter Adv_filter)
+int UnaMKR :: btScan(int scan_time_ms, ScanRssiFilter RSSI_filter, ScanAdvFilter Adv_filter)
 {
-    return btScan(scan_time, (int)RSSI_filter, (int) Adv_filter);
+    return btScan(scan_time_ms, (int)RSSI_filter, (int) Adv_filter);
 }
 
 
@@ -591,6 +666,18 @@ int  UnaMKR:: btDisconnect(void)
     return NO_ERROR;
 }
 
+int UnaMKR :: btIsConnect(void) 
+{
+    int status = chk_command_seq();
+    if (status) return status;
+    if (printlog_en) Serial.println("AT$BTCONN?");
+
+    resetQueue();
+    Serial1.flush();
+    Serial1.print("AT$BTCONN?\r");
+    return NO_ERROR;
+}
+
 int  UnaMKR :: btWrite(const String text)
 {
     char data[128];
@@ -636,7 +723,7 @@ int  UnaMKR:: btRead(int read_len)
 
 int  UnaMKR :: btAdvertising(UnaAdvertiser* adv)
 {
-    char str[64];
+    char str[96];
     bool ret;
     int  status = chk_command_seq();
     if (status) return status;
@@ -852,6 +939,46 @@ bool UnaMKR :: getData_ScanResult(UnaScanResult *result, unsigned int timeout)
 
     /* remove character due to completed */
     removeNewLineCharacter(';');
+    return rsp;
+}
+
+bool UnaMKR :: getData_Monarch(UnaMonarch *result, unsigned int timeout)
+{
+    char response[64];
+    int  resp_len;
+    bool rsp = false;
+
+    if (!result)
+        return false;
+
+    /* clear elements */
+    result->clear();
+    
+    /* return false if response data has been processed */ 
+    if (checkResponseReceived())
+        return false;
+
+    /* read buffer queue */
+    bool retry;
+
+    do
+    {
+        retry = false;
+        if (getData(response, &resp_len, timeout))
+        {
+            // check the response data is empty 
+            if (!resp_len)
+                break;
+
+            // if decodes failed, ignore current response
+            if (result->decodeMonarchRsp(response) == false)
+                retry = true;
+            else
+                rsp = true;
+        }
+
+    } while (retry);
+
     return rsp;
 }
 
