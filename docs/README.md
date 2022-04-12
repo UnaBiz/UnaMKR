@@ -100,7 +100,7 @@ UnaMKR and UnamKR mini are available for order through one of the following cont
 
 | Country   | Contact |
 |:---------:|---------|
-| Singapore | Ms. Kimberley Thong<br/>Business Development Manager<br/>[kimberley.thong AT unabiz.com](mailto:kimberley.thong@unabiz.com) |
+| Singapore | Ms. Ashikin Anuar<br/>Pre Sales<br/>[ashikin.anuar AT unabiz.com](mailto:ashikin.anuar@unabiz.com) |
 | Taiwan    | Mr. Carter Ho<br/>Sales Director<br/>[carter.ho AT unabiz.com](mailto:carter.ho@unabiz.com) |
 
 ?> If your country isn't listed above or have a specific enquiry, please contact [us](https://www.unabiz.com/contact).
